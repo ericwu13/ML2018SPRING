@@ -65,7 +65,7 @@ def main():
     filepath = "ckpt/weights_early_new_CNN.h5"
     modelcheckpoint = ModelCheckpoint(filepath, monitor='val_acc', save_best_only=True, mode='max')
     callbacks.append(modelcheckpoint)
-    csv_logger = CSVLogger('cnn_log.csv', separator=',', append=False)
+    csv_logger = CSVLogger('log/cnn_log.csv', separator=',', append=False)
     callbacks.append(csv_logger)
     es = EarlyStopping(monitor='val_loss', patience=50, verbose=1, mode='min')
     callbacks.append(es)

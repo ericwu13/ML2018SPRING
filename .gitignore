@@ -3,3 +3,4 @@ ckpt/
 model/
 *.swp
 __pycache__/
+log/
