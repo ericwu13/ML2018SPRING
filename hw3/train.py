@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import os
 import random 
 import sys
 from keras.models import load_model
@@ -13,6 +14,11 @@ epochs = 150
 zoom_range = 0.2
 isValid = 1
 model_name = "ckpt/weights.038-0.64716.h5"
+
+# get the root dir
+base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+# get the data dir
+data_dir = os.path.join(base_dir,'data')
 
 def read_dataset(mode='train', isFeat=True):
   data = []

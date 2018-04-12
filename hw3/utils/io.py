@@ -1,14 +1,8 @@
-import os
 import numpy as np
-import random
-#from keras.utils.np_utils import to_categorical
+from keras.utils.np_utils import to_categorical
 
-# get the root dir
-base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-# get the data dir
-data_dir = os.path.join(base_dir,'data')
 
-def read_dataset(mode='train',isFeat=True):
+def read_dataset(mode = 'train', isFeat = True):
     """
     Return:
         # features: (int. list) list
@@ -24,24 +18,24 @@ def read_dataset(mode='train',isFeat=True):
                 label, feat=line.split(',')
             else:
                 _,feat = line.split(',')
-            feat = np.fromstring(feat,dtype=int,sep=' ')
+            feat = np.fromstring(feat, dtype=int, sep=' ')
             # print(feat)
-            feat = np.reshape(feat,(48,48,1))
+            feat = np.reshape(feat, (48, 48, 1))
 
             if isFeat:
-                datas.append((feat,int(label),line_id))
+                datas.append((feat, int(label)))
             else:
                 datas.append(feat)
 
     # random.shuffle(datas)  # shuffle outside
     if isFeat:
-        feats,labels,line_ids = zip(*datas)
+        feats, labels = zip(*datas)
     else:
         feats = datas
     feats = np.asarray(feats)
     if isFeat:
-        #labels = to_categorical(np.asarray(labels,dtype=np.int32))
-        return feats,labels,line_ids
+        labels = to_categorical(np.asarray(labels, dtype = np.int32))
+        return feats, labels
     else:
         return feats
 
