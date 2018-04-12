@@ -12,6 +12,12 @@ from keras.utils import plot_model
 from utils import io
 from model import model_build
 
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 1
+set_session(tf.Session(config=config))
+
 height = width = 48
 num_classes = 7
 input_shape = (height, width, 1)
