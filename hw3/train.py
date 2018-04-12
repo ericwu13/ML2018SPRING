@@ -17,7 +17,6 @@ num_classes = 7
 input_shape = (height, width, 1)
 batch_size = 128
 epochs = 150
-zoom_range = 0.2
 isValid = 1
 model_name = ""
 
@@ -31,18 +30,16 @@ def gen_valid_set(feats, labels, frac):
     return feats[:(length - points)], labels[:(length - points)], \
            feats[(length - points):], labels[(length - points):]
 
+
 def testing(X, model):
     global model_name
-    #ans = model.predict(X, batch_size=batch_size,verbose=1)
-    ans = model.predict_classes(X)
-    ans = list(ans)
-    print('\n')
-    with open('{}.csv'.format(model_name), 'w', encoding='big5') as f:
-        f.write('id,label\n')
-        for i in range(len(ans)):
-            p = np.argmax(ans[i])
-            f.write(repr(i) + ',' + repr(p) + '\n')
-
+    prd_class = model.predict_classes(X)
+    print(prd_class)
+    with open("predict/{}.csv".format(model_name), 'w') as f:
+        csv_writer = csv.writer(f)
+        csv_writer.writerow(['id', 'label'])
+        for i in range(len(X)):
+            csv_writer.writerow([i]+[prd_class[i]])
 
 def main():
     global model_name
@@ -77,6 +74,11 @@ def main():
                         epochs=epochs,
                         callbacks=callbacks,
                         validation_data=(val_feats, val_labels))
+    modle.save("final_predict.h5")
+
+    te_feats = io.read_dataset('test', False)
+    model.load_model(filepath)
+    testing(te_feats, model)
 
 if( __name__ == '__main__'):
     main() 
