@@ -1,5 +1,11 @@
 import numpy as np
+import os
+import random
 from keras.utils.np_utils import to_categorical
+# get the root dir
+base_dir = os.path.dirname((os.path.dirname(os.path.realpath(__file__))))
+# get the data dir
+data_dir = os.path.join(base_dir,'data')
 
 
 def read_dataset(mode = 'train', isFeat = True):
@@ -14,11 +20,13 @@ def read_dataset(mode = 'train', isFeat = True):
 
     with open(os.path.join(data_dir,'{}.csv'.format(mode))) as file:
         for line_id,line in enumerate(file):
+            if(line_id == 0):
+                continue
             if isFeat:
-                label, feat=line.split(',')
+                label, feat =line.split(',')
             else:
                 _,feat = line.split(',')
-            feat = np.fromstring(feat, dtype=int, sep=' ')
+            feat = np.fromstring(feat, dtype=int, sep=' ') / 255.
             # print(feat)
             feat = np.reshape(feat, (48, 48, 1))
 
@@ -27,8 +35,8 @@ def read_dataset(mode = 'train', isFeat = True):
             else:
                 datas.append(feat)
 
-    # random.shuffle(datas)  # shuffle outside
     if isFeat:
+        random.shuffle(datas)  # shuffle outside
         feats, labels = zip(*datas)
     else:
         feats = datas

@@ -1,10 +1,16 @@
-import os
 import numpy as np
 import os
 import random 
 import sys
+from keras.callbacks import CSVLogger, ModelCheckpoint, EarlyStopping
+from keras.preprocessing.image import ImageDataGenerator
 from keras.models import load_model
+from keras import losses
+from keras import optimizers
 from keras.utils import plot_model
+
+from utils import io
+from model import model_build
 
 height = width = 48
 num_classes = 7
@@ -13,61 +19,64 @@ batch_size = 128
 epochs = 150
 zoom_range = 0.2
 isValid = 1
-model_name = "ckpt/weights.038-0.64716.h5"
+model_name = ""
 
-# get the root dir
-base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-# get the data dir
-data_dir = os.path.join(base_dir,'data')
+def gen_valid_set(feats, labels, frac):
+    length = len(feats)
+    points = int(length * frac)
+    #pairs = list(zip(feats, labels))
+    #datas = random.shuffle(pairs)
 
-def read_dataset(mode='train', isFeat=True):
-  data = []
-  cnt = 0
-  with open(os.path.join('data/', '{}.csv'.format(mode))) as f:
-    for line_id, line in enumerate(f):
-      if cnt == 0:
-        cnt += 1
-        continue
-      feat = []
-      if isFeat:
-        label, feat = line.split(',')
-      else:
-      	_, feat = line.split(',')
-      feat = np.fromstring(feat, dtype=int, sep=' ')/255
-      feat = np.reshape(feat, (48, 48, 1))
+    #feats, labels = zip(*datas)
+    return feats[:(length - points)], labels[:(length - points)], \
+           feats[(length - points):], labels[(length - points):]
 
-      if isFeat:
-      	data.append((feat, int(label), line_id))
-      else:
-      	data.append(feat)
-
-  if isFeat:
-    feats, labels, line_ids = zip(*data)
-  else:
-    feats = data
-  feats = np.asarray(feats)
-
-  if isFeat:
-    labels = to_categorical(np.asarray(labels, dtype=np.int32))
-    return feats, labels, line_ids
-  else:
-    return feats
 def testing(X, model):
-  global model_name
-  #ans = model.predict(X, batch_size=batch_size,verbose=1)
-  ans = model.predict_classes(X)
-  ans = list(ans)
-  print('\n')
-  with open('{}.csv'.format(model_name), 'w', encoding='big5') as f:
-    f.write('id,label\n')
-    for i in range(len(ans)):
-      p = np.argmax(ans[i])
-      f.write(repr(i) + ',' + repr(p) + '\n')
+    global model_name
+    #ans = model.predict(X, batch_size=batch_size,verbose=1)
+    ans = model.predict_classes(X)
+    ans = list(ans)
+    print('\n')
+    with open('{}.csv'.format(model_name), 'w', encoding='big5') as f:
+        f.write('id,label\n')
+        for i in range(len(ans)):
+            p = np.argmax(ans[i])
+            f.write(repr(i) + ',' + repr(p) + '\n')
 
 
 def main():
-  global model_name
-  te_feats = read_dataset('test', False)
-  model = load_model(model_name)
-  testing(te_feats, model)
-main() 
+    global model_name
+    tr_feats, tr_labels = io.read_dataset()
+    te_feats = io.read_dataset('test', False)
+    tr_feats, tr_labels, val_feats, val_labels = gen_valid_set(tr_feats, tr_labels, 0.1)
+    train_gen = ImageDataGenerator(rotation_range=25, 
+                                    width_shift_range=0.1,
+                                    height_shift_range=0.1,
+                                    shear_range=0.1,
+                                    zoom_range=[1-zoom_range, 1+zoom_range],
+                                    horizontal_flip=True)
+    train_gen.fit(tr_feats)
+    print(np.shape(tr_feats))
+    # build CNN model
+    model = model_build(input_shape, num_classes)
+
+    # model training
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+    # Fit the model
+    callbacks = []
+    filepath = "ckpt/weights_early_new_CNN.h5"
+    modelcheckpoint = ModelCheckpoint(filepath, monitor='val_acc', save_best_only=True, mode='max')
+    callbacks.append(modelcheckpoint)
+    csv_logger = CSVLogger('cnn_log.csv', separator=',', append=False)
+    callbacks.append(csv_logger)
+    es = EarlyStopping(monitor='val_loss', patience=50, verbose=1, mode='min')
+    callbacks.append(es)
+    model.fit_generator(train_gen.flow(tr_feats, tr_labels, batch_size=batch_size),
+                        steps_per_epoch=tr_feats.shape[0]//batch_size,
+                        epochs=epochs,
+                        callbacks=callbacks,
+                        validation_data=(val_feats, val_labels))
+
+if( __name__ == '__main__'):
+    main() 
