@@ -36,7 +36,7 @@ def read_dataset(mode = 'train', isFeat = True):
                 datas.append(feat)
 
     if isFeat:
-        random.shuffle(datas)  # shuffle outside
+        #random.shuffle(datas)  # shuffle outside
         feats, labels = zip(*datas)
     else:
         feats = datas
