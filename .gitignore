@@ -1,6 +1,7 @@
 data/
-ckpt/
+ckpt*
 model/
 *.swp
 __pycache__/
 log/
+predict/

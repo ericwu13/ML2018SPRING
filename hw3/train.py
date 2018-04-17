@@ -16,7 +16,7 @@ from model import model_build
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.5
+config.gpu_options.per_process_gpu_memory_fraction = 0.6
 set_session(tf.Session(config=config))
 
 height = width = 48
@@ -25,8 +25,8 @@ input_shape = (height, width, 1)
 batch_size = 128
 epochs = 500
 isValid = 1
-#zoom_range = 0.2
-zoom_range = 0.24
+zoom_range = 0.2
+#zoom_range = 0.24
 
 def gen_valid_set(feats, labels, frac):
     length = len(feats)
@@ -56,52 +56,45 @@ def img_flip(imgs):
     return imgs
 
 def main():
+    '==================== Data Forming ===================='
+
     tr_feats, tr_labels = io.read_dataset()
+    tr_feats, tr_labels, val_feats, val_labels = gen_valid_set(tr_feats, tr_labels, 0.1)
     tr_feats_flip = img_flip(tr_feats)
     tr_feats = np.concatenate((tr_feats, tr_feats_flip), axis=0)
     tr_labels = np.concatenate((tr_labels, tr_labels), axis=0)
+    tr_feats, tr_labels, va, vas = gen_valid_set(tr_feats, tr_labels, 0)
     print(len(tr_feats))
     te_feats = io.read_dataset('test', False)
-    tr_feats, tr_labels, val_feats, val_labels = gen_valid_set(tr_feats, tr_labels, 0.1)
     print(np.shape(tr_feats))
-    '''
     train_gen = ImageDataGenerator(rotation_range=25, 
                                     width_shift_range=0.1,
                                     height_shift_range=0.1,
                                     shear_range=0.1,
                                     zoom_range=[1-zoom_range, 1+zoom_range],
                                     horizontal_flip=True)
-                                    '''
-    train_gen = ImageDataGenerator(rotation_range=30,
-                                    width_shift_range=0.15,
-                                    height_shift_range=0.06,
-                                    shear_range=0.1,
-                                    zoom_range=[1-zoom_range, 1+zoom_range])
     train_gen.fit(tr_feats)
-    # build CNN model
+
+    '==================== Training Setting ==================='
     model = model_build(input_shape, num_classes)
-
-    # model training
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-    # Fit the model
     model_feature = "3_Dense_CNN"
     #filepath = "ckpt/weights_early_" + model_feature + ".h5"
-
     callbacks = []
-    modelcheckpoint = ModelCheckpoint("ckpt/weights.{epoch:03d}-{val_acc:.5f}.h5", monitor='val_acc', save_best_only=True, mode='max')
+    modelcheckpoint = ModelCheckpoint("ckpt_aggre_dropout/weights.{epoch:03d}-{val_acc:.5f}.h5", monitor='val_acc', save_best_only=True, mode='max', verbose=1)
     callbacks.append(modelcheckpoint)
-    csv_logger = CSVLogger('log/cnn_log.csv', separator=',', append=False)
+    csv_logger = CSVLogger('log/cnn_log_aggredropout.csv', separator=',', append=False)
     callbacks.append(csv_logger)
-    es = EarlyStopping(monitor='val_loss', patience=100, verbose=1, mode='min')
+    es = EarlyStopping(monitor='val_loss', patience=70, verbose=1, mode='min')
     callbacks.append(es)
+
     model.fit_generator(train_gen.flow(tr_feats, tr_labels, batch_size=batch_size),
                         steps_per_epoch=1*tr_feats.shape[0]//batch_size,
                         epochs=epochs,
                         callbacks=callbacks,
                         validation_data=(val_feats, val_labels))
-    model.save("model/final_predict.h5")
 
+    model.save("model/final_predict.h5")
     score = model.evaluate(val_feats, val_labels)
     print("\nValidation Acc for \"final_model\": {}\n".format(score[1]))
 
