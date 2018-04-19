@@ -8,7 +8,7 @@ base_dir = os.path.dirname((os.path.dirname(os.path.realpath(__file__))))
 data_dir = os.path.join(base_dir,'data')
 
 
-def read_dataset(mode = 'train', isFeat = True):
+def read_dataset(mode = 'train', isFeat = True, path = False, data_path = ""):
     """
     Return:
         # features: (int. list) list
@@ -17,8 +17,11 @@ def read_dataset(mode = 'train', isFeat = True):
     """
     # num_data = 0
     datas = []
+    read_path = os.path.join(data_dir,'{}.csv'.format(mode))
+    if(path):
+        read_path = data_path;
 
-    with open(os.path.join(data_dir,'{}.csv'.format(mode))) as file:
+    with open(read_path) as file:
         for line_id,line in enumerate(file):
             if(line_id == 0):
                 continue

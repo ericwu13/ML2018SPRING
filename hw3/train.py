@@ -11,12 +11,12 @@ from keras import optimizers
 from keras.utils import plot_model
 
 from utils import io
-from model import model_build
+from model_final_good import model_build
 
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.6
+config.gpu_options.per_process_gpu_memory_fraction = 0.45
 set_session(tf.Session(config=config))
 
 height = width = 48
@@ -58,14 +58,20 @@ def img_flip(imgs):
 def main():
     '==================== Data Forming ===================='
 
-    tr_feats, tr_labels = io.read_dataset()
+    tr_feats, tr_labels = io.read_dataset(path=True, data_path=sys.argv[1])
+
+    #mean, std = np.mean(tr_feats, axis=0), np.std(tr_feats, axis=0)
+    #np.save('attr.npy', [mean, std])
+    #tr_feats = (tr_feats - mean) / (std + 1e-20)
+
     tr_feats, tr_labels, val_feats, val_labels = gen_valid_set(tr_feats, tr_labels, 0.1)
     tr_feats_flip = img_flip(tr_feats)
     tr_feats = np.concatenate((tr_feats, tr_feats_flip), axis=0)
     tr_labels = np.concatenate((tr_labels, tr_labels), axis=0)
     tr_feats, tr_labels, va, vas = gen_valid_set(tr_feats, tr_labels, 0)
+
+
     print(len(tr_feats))
-    te_feats = io.read_dataset('test', False)
     print(np.shape(tr_feats))
     train_gen = ImageDataGenerator(rotation_range=25, 
                                     width_shift_range=0.1,
@@ -81,9 +87,9 @@ def main():
     model_feature = "3_Dense_CNN"
     #filepath = "ckpt/weights_early_" + model_feature + ".h5"
     callbacks = []
-    modelcheckpoint = ModelCheckpoint("ckpt_aggre_dropout/weights.{epoch:03d}-{val_acc:.5f}.h5", monitor='val_acc', save_best_only=True, mode='max', verbose=1)
+    modelcheckpoint = ModelCheckpoint("ckpt_center_norm/weights.{epoch:03d}-{val_acc:.5f}.h5", monitor='val_acc', save_best_only=True, mode='max', verbose=1)
     callbacks.append(modelcheckpoint)
-    csv_logger = CSVLogger('log/cnn_log_aggredropout.csv', separator=',', append=False)
+    csv_logger = CSVLogger('log/cnn_log_center_norm.csv', separator=',', append=False)
     callbacks.append(csv_logger)
     es = EarlyStopping(monitor='val_loss', patience=70, verbose=1, mode='min')
     callbacks.append(es)
@@ -98,14 +104,6 @@ def main():
     score = model.evaluate(val_feats, val_labels)
     print("\nValidation Acc for \"final_model\": {}\n".format(score[1]))
 
-'''
-    model = load_model(filepath)
-    score = model.evaluate(val_feats, val_labels)
-    print("\nValidation Acc for \"load_model\": {}\n".format(score[1]))
-    te_feats = io.read_dataset('test', False)
-    predict_path = model_feature + str(score[1])
-    testing(te_feats, model, predict_path)
-    '''
 
 if( __name__ == '__main__'):
     main() 

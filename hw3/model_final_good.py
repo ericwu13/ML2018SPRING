@@ -45,14 +45,6 @@ def model_build(input_shape, num_classes):
 
     model.add(Flatten())
 
-    ''' 0.7 dense
-    model.add(Dense(512, activation='relu'))
-    model.add(BatchNormalization())
-    model.add(Dropout(0.5))
-    model.add(Dense(512, activation='relu'))
-    model.add(BatchNormalization())
-    model.add(Dropout(0.5))
-    '''
     model.add(Dense(512))
     model.add(LeakyReLU(alpha=0.05))
     model.add(BatchNormalization())
