@@ -6,13 +6,14 @@ import numpy as np
 import csv
 
 def ensembleModels(models, name):
-    ymodel = []
+    y_model = []
     for i in models:
-        ymodel.append(load_model(i))
+        y_model.append(load_model(i))
 
-    model_input = Input(shape=ymodel[0].input_shape[1:])
+    model_input = Input(shape=y_model[0].input_shape[1:])
+    print(y_model[0].input_shape)
 
-    yModels=[model(model_input) for model in ymodel]
+    yModels=[model(model_input) for model in y_model]
     yAvg=average(yModels)
     modelEns = Model(inputs=model_input, outputs=yAvg, name='ensemble')
     modelEns.save(name+'.h5')
@@ -24,10 +25,6 @@ name = sys.argv[2]
 models = []
 for i in range(num_model):
     models.append(sys.argv[i+3])
-    '''
-    prob = model.predict(te_feats)
-    y_prob += prob
-    '''
 
 model = ensembleModels(models, name)
 y_prob = model.predict(te_feats)

@@ -4,6 +4,11 @@ import csv
 import numpy as np
 import sys
 
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.25
+set_session(tf.Session(config=config))
 def testing(X, model, path):
     global model_name
     y_prob = model.predict(X)

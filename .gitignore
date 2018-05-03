@@ -5,4 +5,8 @@ model/
 __pycache__/
 log/
 predict/
-image/
+*image/
+SVD/
+*.npy
+*.csv
+*.h5
