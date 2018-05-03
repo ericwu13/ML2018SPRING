@@ -2,7 +2,7 @@ import argparse
 from keras.models import load_model
 import numpy as np
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from keras.callbacks import CSVLogger, ModelCheckpoint, EarlyStopping
 from keras.layers import Input, Dense
 from keras.models import Model
