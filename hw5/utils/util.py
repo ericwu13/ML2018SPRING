@@ -4,6 +4,8 @@ import numpy as np
 import _pickle as pk
 from gensim.models import Word2Vec #from gensim.corpora import Dictionary
 from pprint import pprint
+from keras.preprocessing.text import Tokenizer
+from para import *
 
 def get_freqDict(document):
     freq = {}
@@ -20,7 +22,7 @@ def convert_punc(cmap, document, orin_document):
             tmp = w
             if w == '': continue
             excCnt, queCnt, dotCnt = w.count('!'), w.count('?'), w.count('.')
-            if queCnt >=4:        tmp = '_???'
+            if queCnt >=4:    tmp = '_???'
             elif queCnt >= 2: tmp = '_??'
             elif queCnt >= 1: tmp = '_?'
             elif excCnt >= 4: tmp = '_!!!'
@@ -349,6 +351,10 @@ class DataManager:
         # return a word vector set
         vector = padding(self.document, maxlen)
         self.dump_myDict('mydict/padd_testCorpus.txt', 'corpus')
+        '''
+        for idx, s in enumerate(self.document):
+            self.document[idx] = [word for word in s if word != '']
+        '''
 
         print('  Transforming by word2vec...')
         for i, s in enumerate(self.document):
@@ -363,11 +369,31 @@ class DataManager:
         for i, s in enumerate(self.document):
             for j, w in enumerate(s):
                 if w in self.cmap: s[j] = self.cmap[w]
-                else: s[j] = self.cmap['_r']
+                else: s[j] = '_r'
             self.document[i] = s
         self.document = [[word for word in s if word not in (self.stpWrds_list)]\
             for s in self.document]
-        print(self.document[944])
+        #print(self.document[944])
+
+    def transformByBOW(self, load=False):
+        print('  Creating tokenizer...')
+        for i, s in enumerate(self.document):
+            self.document[i] = ' '.join(s)
+        #print(self.document[0])
+        if load:
+            print ('Load tokenizer from %s'%token_path)
+            tokenizer = pk.load(open(token_path, 'rb'))
+        else:
+            tokenizer = Tokenizer(num_words=30000)#, reserve_zero=False)
+            tokenizer.fit_on_texts(self.document)
+            print ('save tokenizer to %s'%token_path)
+            pk.dump(tokenizer, open(token_path, 'wb'))
+        bag_of_word =  tokenizer.texts_to_matrix(self.document[:int(len(self.data['train_data'][0]))],mode='count')
+        #bag_of_word =  bag_of_word + tokenizer.texts_to_matrix(self.document[int(len(self.document)/2):],mode='count')
+        #print(bag_of_word.shape)
+        return bag_of_word
+
+
     #   init cmap & document with data(train+semi)
     def init_DocNCmap(self, mode='train'):
         print("  Initializing conversion map...")
@@ -382,10 +408,11 @@ class DataManager:
                     document += self.data[key][0]
 
         # remove stop words & useless punctuation
-        punc = ', $ ` @ # % ^ & _ - + = | \" | \\ / \' :'
-        texts = [[word for word in s.split() if word not in (self.stpWrds_list)+punc.split()]\
+        punc = '. ! ? , $ ` @ # % ^ & _ - + = | \" | \\ / \' :'
+        texts = [[word for word in s.split() if word[0] not in (self.stpWrds_list)+punc.split()]\
                 for s in document]
         self.document = [x[:] for x in texts]
+        print(self.document[0])
         self.orin_document = [x[:] for x in texts]
         for s in self.document:
             for w in s:
@@ -398,5 +425,6 @@ class DataManager:
             for w in s:
                 cmap[w] = w
         print('    New Conversion map size: ', len(cmap))
+        return len(cmap)
         
     #   caculating words frequency given document

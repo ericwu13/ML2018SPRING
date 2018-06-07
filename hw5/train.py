@@ -10,7 +10,7 @@ from keras.models import Sequential
 from keras.layers import Dense, GRU, Flatten
 import keras.backend.tensorflow_backend as K
 import tensorflow as tf
-from rnn_model import RNN
+from rnn_model import *
 from preprocess import *
 
 train_path = 'data/training_label.txt'
@@ -58,23 +58,27 @@ def main(args):
     if args.load is True:   
         (X, Y), semi_all_X = preprocess_trainData(dm, mode='train', maxlen=args.max_length)
     else:                   
-        (X, Y), semi_all_X = preprocess_trainData(dm, mode='retrain', dim=args.w2vdim, maxlen=args.max_length)
+        (X, Y), semi_all_X = preprocess_trainData(dm, mode='reproc', dim=args.w2vdim, maxlen=args.max_length)
 
     '==============================================='
     '=========== Model Forming & Training =========='
     '==============================================='
     (X, Y), (X_val,Y_val) = dm.split_data([X,Y], args.val_ratio)
+    #model = RNN(args)
     model = RNN(args)
     model.summary()
-    earlystopping = EarlyStopping(monitor='val_acc', patience = 15, verbose=1, mode='max')
-    save_path = save_dir + "weights.{epoch:03d}-{val_acc:.5f}.h5"
     if args.action == 'train':
+        earlystopping = EarlyStopping(monitor='val_acc', patience = 15, verbose=1, mode='max')
+        csvlogger = CSVLogger('log/report_NoPunc.csv')
+        save_path = save_dir + "weights.{epoch:03d}-{val_acc:.5f}.h5"
         checkpoint = ModelCheckpoint(filepath=save_path,\
                                      verbose=1, save_best_only=True,
                                      monitor='val_acc', mode='max' )
         history = model.fit(X, Y, validation_data=(X_val, Y_val),\
-                        epochs=50, batch_size=512, callbacks=[checkpoint, earlystopping] )
+                        epochs=50, batch_size=512, callbacks=[checkpoint, earlystopping, csvlogger] )
     if args.action == 'semi':
+        earlystopping = EarlyStopping(monitor='val_acc', patience = 15, verbose=1, mode='max')
+        csvlogger = CSVLogger('log/report_semi.csv', append=True)
         weight_path = save_dir+ "weight.h5"
         checkpoint = ModelCheckpoint(filepath=weight_path,\
                                      verbose=1, save_best_only=True,\
@@ -92,7 +96,7 @@ def main(args):
                                 validation_data=(X_val, Y_val),
                                 epochs=2, 
                                 batch_size=512,
-                                callbacks=[checkpoint, earlystopping] )
+                                callbacks=[checkpoint, earlystopping, csvlogger] )
 
             if os.path.exists(weight_path):
                 print ('load model from %s' % weight_path)

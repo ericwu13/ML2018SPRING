@@ -23,6 +23,7 @@ dm = DataManager()
 dm.add_rawData('test_data', args.test_path, False)
 test_X = preprocess_testData(dm, maxlen=args.max_length)
 model = load_model(args.model_path)
+model.summary()
 predict_Y = model.predict(test_X, batch_size=1024, verbose=True)
 
 print(predict_Y)
