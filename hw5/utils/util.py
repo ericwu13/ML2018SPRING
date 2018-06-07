@@ -408,7 +408,7 @@ class DataManager:
                     document += self.data[key][0]
 
         # remove stop words & useless punctuation
-        punc = '. ! ? , $ ` @ # % ^ & _ - + = | \" | \\ / \' :'
+        punc = ', $ ` @ # % ^ & _ - + = | \" | \\ / \' :'
         texts = [[word for word in s.split() if word[0] not in (self.stpWrds_list)+punc.split()]\
                 for s in document]
         self.document = [x[:] for x in texts]
