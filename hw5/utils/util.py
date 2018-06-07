@@ -350,7 +350,7 @@ class DataManager:
     def transformByWord2Vec(self, w2v, maxlen=40):
         # return a word vector set
         vector = padding(self.document, maxlen)
-        self.dump_myDict('mydict/padd_testCorpus.txt', 'corpus')
+        #self.dump_myDict('mydict/padd_testCorpus.txt', 'corpus')
         '''
         for idx, s in enumerate(self.document):
             self.document[idx] = [word for word in s if word != '']

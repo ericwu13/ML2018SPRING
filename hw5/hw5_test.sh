@@ -1,5 +1,5 @@
 mkdir ./model
-mkdir ./mydcit
+mkdir ./mydict
 mkdir ./mydict/log
 wget -O model/cmap.pkl "https://www.dropbox.com/s/bsfxozvpcegohev/new_cmap.pkl?dl=0"
 wget -O model/corpus.txt "https://www.dropbox.com/s/vi1vza4uxmcr8li/new_corpus.txt?dl=0"
