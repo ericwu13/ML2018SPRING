@@ -1,7 +1,9 @@
 mkdir ./model
-wget -O model/cmap.pkl "https://www.dropbox.com/s/8lipdpfh1rn6fj9/cmap_3W_30padd.pkl?dl=0"
-wget -O model/corpus.txt "https://www.dropbox.com/s/9x3rkn4ujs5ozba/corpus_3W_30padd.txt?dl=0"
-wget -O model/word2vec.pkl "https://www.dropbox.com/s/sce4kk9n2c70wwg/word2vec_3W_30padd.pkl?dl=0"
-wget -O model/model.h5 "https://www.dropbox.com/s/i2e24ek1agi6v1o/ensemble_5_0.839.h5?dl=0://www.dropbox.com/s/9x0vt3rtw6agjf8/word2vec_310.pkl?dl=0"
+mkdir ./mydcit
+mkdir ./mydict/log
+wget -O model/cmap.pkl "https://www.dropbox.com/s/bsfxozvpcegohev/new_cmap.pkl?dl=0"
+wget -O model/corpus.txt "https://www.dropbox.com/s/vi1vza4uxmcr8li/new_corpus.txt?dl=0"
+wget -O model/emb.pkl "https://www.dropbox.com/s/3kt9gmq33e62gjj/emb.pkl?dl=0"
+wget -O model/model.h5 "https://www.dropbox.com/s/bb380mq6ii3whoq/ensemble.h5?dl=0"
 
-CUDA_VISIBLE_DEVICES=0 python test.py --test_path=$1 --result_path=$2 --max_length=30 --model_path=model/model.h5
+python test.py --test_path=$1 --result_path=$2 --max_length=30 --model_path=model/model.h5

@@ -32,7 +32,8 @@ def preprocess_testData(dm, dim=256, maxlen=40):
     dm.update_cmap()
     #corpus_path = os.path.join(base_dir, 'model/test_corpus.txt')
     #dm.dump_myDict(corpus_path, 'corpus')
-    w2v = Word2Vec.load(w2v_path)
+    #w2v = Word2Vec.load(w2v_path)
+    w2v = pk.load(open(w2v_path, 'rb'))
     X = dm.transformByWord2Vec(w2v, maxlen=maxlen)
     #X = dm.transformByBOW(load=True)
     return X

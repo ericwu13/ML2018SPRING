@@ -10,4 +10,4 @@ SVD/
 *.npy
 *.csv
 *.h5
-mydict/
+mydict*/

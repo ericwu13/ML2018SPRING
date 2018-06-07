@@ -359,10 +359,10 @@ class DataManager:
         print('  Transforming by word2vec...')
         for i, s in enumerate(self.document):
             for j, w in enumerate(s):
-                if w in w2v.wv:
-                    vector[i][j] = w2v.wv[w]
+                if w in w2v:
+                    vector[i][j] = w2v[w]
                 else:
-                    vector[i][j] = w2v.wv['_r']
+                    vector[i][j] = w2v['_r']
         return vector 
     def transformBycmap(self):
         # transform document by cmap
