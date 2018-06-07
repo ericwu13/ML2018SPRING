@@ -58,7 +58,7 @@ def main(args):
     if args.load is True:   
         (X, Y), semi_all_X = preprocess_trainData(dm, mode='train', maxlen=args.max_length)
     else:                   
-        (X, Y), semi_all_X = preprocess_trainData(dm, mode='reproc', dim=args.w2vdim, maxlen=args.max_length)
+        (X, Y), semi_all_X = preprocess_trainData(dm, mode='retrain', dim=args.w2vdim, maxlen=args.max_length)
 
     '==============================================='
     '=========== Model Forming & Training =========='

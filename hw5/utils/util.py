@@ -2,7 +2,7 @@ import os
 import re
 import numpy as np
 import _pickle as pk
-from gensim.models import Word2Vec #from gensim.corpora import Dictionary
+from gensim.models import Word2Vec, KeyedVectors #from gensim.corpora import Dictionary
 from pprint import pprint
 from keras.preprocessing.text import Tokenizer
 from para import *
@@ -412,7 +412,7 @@ class DataManager:
         texts = [[word for word in s.split() if word[0] not in (self.stpWrds_list)+punc.split()]\
                 for s in document]
         self.document = [x[:] for x in texts]
-        print(self.document[0])
+        #print(self.document[0])
         self.orin_document = [x[:] for x in texts]
         for s in self.document:
             for w in s:

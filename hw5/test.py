@@ -17,7 +17,7 @@ args = parser.parse_args()
 def get_session(gpu_fraction):
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction)
     return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
-K.set_session(get_session(args.gpu_fraction))
+#K.set_session(get_session(args.gpu_fraction))
 
 dm = DataManager()
 dm.add_rawData('test_data', args.test_path, False)
