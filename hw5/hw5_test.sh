@@ -4,6 +4,6 @@ mkdir ./mydict/log
 wget -O model/cmap.pkl "https://www.dropbox.com/s/bsfxozvpcegohev/new_cmap.pkl?dl=0"
 wget -O model/corpus.txt "https://www.dropbox.com/s/vi1vza4uxmcr8li/new_corpus.txt?dl=0"
 wget -O model/emb.pkl "https://www.dropbox.com/s/3kt9gmq33e62gjj/emb.pkl?dl=0"
-wget -O model/model.h5 "https://www.dropbox.com/s/bb380mq6ii3whoq/ensemble.h5?dl=0"
+wget -O model/model.h5 "https://www.dropbox.com/s/b5bit1npw8q097m/ensemble_public_fail.h5?dl=0"
 
 python test.py --test_path=$1 --result_path=$2 --max_length=30 --model_path=model/model.h5
