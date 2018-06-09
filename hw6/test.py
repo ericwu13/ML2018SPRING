@@ -9,7 +9,6 @@ import tensorflow as tf
 
 parser = argparse.ArgumentParser(description='MF')
 parser.add_argument('--test_path', default='data/test.csv', type=str)
-parser.add_argument('--train_path', default='data/train.csv', type=str)
 parser.add_argument('--result_path', type=str)
 parser.add_argument('--model_path', type=str)
 parser.add_argument('--gpu_fraction', default=0.3, type=float)
